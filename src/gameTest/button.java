@@ -46,7 +46,6 @@ public class button {
 		style.up = new TextureRegionDrawable(new TextureRegion(upTexture));
 		style.down = new TextureRegionDrawable(new TextureRegion(downTexture));
 		
-		 
 	}
 	
 }
