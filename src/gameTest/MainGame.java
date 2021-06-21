@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.scenes.scene2d.Group;
 
 /**
  * 游戏主程序的启动入口类
@@ -28,14 +29,15 @@ public class MainGame extends ApplicationAdapter {
 	public static final float WORLD_HEIGHT = 720;
     
     private Texture texture;	// 纹理    
-    private MyActor actor;	// 演员    
+    private MyActor actor;	// 演员
+    private Group floor, furniture;	//分組
     private Stage stage;		// 舞台
     private Image image; 	// 圖片
     
     public int checkClick = 0;					//當actor被選擇時為1，判斷是否有東西被選中
     public Texture upTexture;					// 按钮 弹起 状态的纹理
 	public Texture downTexture;				// 按钮 按下 状态的纹理
-	public Button button, floor1, floor2, floor3, floor4;	// 按钮
+	public Button button, button1, button2, button3, floor1, floor2, floor3, floor4;	// 按钮
 	public Button.ButtonStyle style;			//按鈕風格
 
     @Override
@@ -43,8 +45,12 @@ public class MainGame extends ApplicationAdapter {
         // 设置 Log 输出级别
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         stage = new Stage();		//設置舞台        
-     
         BackgroundCreate();
+        
+        floor = new Group();
+        floor.setPosition(0, 0);
+        stage.addActor(floor);       
+        
         ButtonCreate();
     }
 
@@ -78,16 +84,19 @@ public class MainGame extends ApplicationAdapter {
         texture = new Texture(Gdx.files.internal("frame1.png"));               
         // 创建 Image
         image = new Image(new TextureRegion(texture));        
-        // 设置 image 的相关属性
-        image.setPosition(20, 140);
+        // 设置 image 的相关属性        
         image.setBounds(16, 115, 240, 570);        
         // 添加 image 到舞台
         stage.addActor(image);
         
         texture = new Texture(Gdx.files.internal("frame2.png"));                
-        image = new Image(new TextureRegion(texture));                
-        image.setPosition(240, 80);
+        image = new Image(new TextureRegion(texture));         
         image.setBounds(275, 115, 970, 570);
+        stage.addActor(image);
+        
+        texture = new Texture(Gdx.files.internal("text.png"));                
+        image = new Image(new TextureRegion(texture));                
+        image.setPosition(972, 15);        
         stage.addActor(image);
         
     }
@@ -96,7 +105,7 @@ public class MainGame extends ApplicationAdapter {
     	Gdx.input.setInputProcessor(stage);		// 将输入处理设置到舞台（必须设置, 否则点击按钮没效果）
         
 		//buttonStart();
-		floor1();floor2(); floor3(); floor4();		
+		button1();button2();button3();floor1();floor2(); floor3(); floor4();		
 			
         /* 事件初始化 */
         // 首先必须注册输入处理器（stage）, 将输入的处理设置给 舞台（Stage 实现了 InputProcessor 接口）
@@ -122,6 +131,34 @@ public class MainGame extends ApplicationAdapter {
 	  //添加 button 到舞台
         stage.addActor(button);
        
+	}
+    
+    public void button1(){
+		upTexture = new Texture(Gdx.files.internal("button1_1.PNG"));
+		downTexture = new Texture(Gdx.files.internal("button1_2.PNG"));
+		add(upTexture, downTexture, button1);
+		button1 = new Button(style);
+		button1.setBounds(25,30,150, 60);		
+		ButtonClick1(button1);
+		stage.addActor(button1);
+	}
+    public void button2(){
+		upTexture = new Texture(Gdx.files.internal("button2_1.PNG"));
+		downTexture = new Texture(Gdx.files.internal("button2_2.PNG"));
+		add(upTexture, downTexture, button2);
+		button2 = new Button(style);
+		button2.setBounds(200,30,150, 60);		
+		ButtonClick2(button2);
+		stage.addActor(button2);
+	}
+    public void button3(){
+		upTexture = new Texture(Gdx.files.internal("button3_1.PNG"));
+		downTexture = new Texture(Gdx.files.internal("button3_2.PNG"));
+		add(upTexture, downTexture, button3);
+		button3 = new Button(style);
+		button3.setBounds(375,30,150, 60);		
+		ButtonClick3(button3);
+		stage.addActor(button3);
 	}
     
     public void floor1(){
@@ -180,6 +217,39 @@ public class MainGame extends ApplicationAdapter {
 		});
 	}
     
+    public void ButtonClick1(Button button) {
+		// 给按钮添加点击监听器
+		button.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				floor.remove();	//清除所有地板
+				
+				//group被清除後需要被重新宣告
+				floor = new Group();
+		        floor.setPosition(0, 0);
+		        stage.addActor(floor);       
+			}
+		});
+	}
+    public void ButtonClick2(Button button) {
+		// 给按钮添加点击监听器
+		button.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				System.out.printf("Floor2\n");				
+			}
+		});
+	}
+    public void ButtonClick3(Button button) {
+		// 给按钮添加点击监听器
+		button.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				System.out.printf("Floor3\n");				
+			}
+		});
+	}
+    
     public void FloorButtonClick1(Button button) {
 		// 给按钮添加点击监听器
 		button.addListener(new ClickListener() {
@@ -225,27 +295,32 @@ public class MainGame extends ApplicationAdapter {
 	}
     
     public void CreateActor(int actorNum) {
+    	int checkSort;
     	// 创建纹理 和 演员
-    	if (actorNum == 1){
-    		texture = new Texture(Gdx.files.internal("floor1.PNG"));
-    		    	}
-    	else if(actorNum == 2){
-    		texture = new Texture(Gdx.files.internal("floor2.PNG"));
-    	}
-    	else if(actorNum == 3){
-    		texture = new Texture(Gdx.files.internal("floor3.PNG"));
-    	}
-    	else if(actorNum == 4){
-    		texture = new Texture(Gdx.files.internal("floor4.PNG"));
+    	switch(actorNum) {
+    		case 1:
+    			texture = new Texture(Gdx.files.internal("floor1.PNG"));
+    			break;
+    		case 2:
+    			texture = new Texture(Gdx.files.internal("floor2.PNG"));
+    			break;
+    		case 3:
+    			texture = new Texture(Gdx.files.internal("floor3.PNG"));
+    			break;
+    		case 4:
+    			texture = new Texture(Gdx.files.internal("floor4.PNG"));
+    			break;
     	}
     	
         actor = new MyActor(new TextureRegion(texture));
+        
         // 设置演员的位置
         actor.setBounds(280, 600, 80, 80);
         // 添加演员                
         stage.addActor(actor);
         // 给演员添加一个 点击 监听器（只包括 手指点击 或 鼠标点击）
         actor.addListener(new MyClickListener());
+        floor.addActor(actor);
     }
 
     /**
@@ -254,29 +329,17 @@ public class MainGame extends ApplicationAdapter {
 	    private class MyInputListener extends InputListener {
 	    	@Override
 	        public boolean keyDown(InputEvent event, int keycode) {
-	            switch (keycode) {
-	                case Input.Keys.UP: {
-	                    Gdx.app.log(TAG, "被按下的按键: 方向上键");
-	                    break;
-	                }
-	                case Input.Keys.DOWN: {
-	                    Gdx.app.log(TAG, "被按下的按键: 方向下键 ");
-	                    break;
-	                }
-	                case Input.Keys.A: {
+	            switch (keycode) {	               
+	                case Input.Keys.Q: {
 	                	if(checkClick == 1) {
 	                		actor.remove();
 	                		checkClick = 0;
-	                	}
-	                    Gdx.app.log(TAG, "被按下的按键: A键");
+	                	}	                    
 	                    break;
 	                }
-	                case Input.Keys.ENTER: {
-	                    Gdx.app.log(TAG, "被按下的按键: 回车键");	                  
-	                    break;
-	                }
-	                default: {
-	                    Gdx.app.log(TAG, "其他按键, KeyCode: " + keycode);
+	                case Input.Keys.R: {
+	                	if(checkClick == 1) {	                		
+	                	}	                    
 	                    break;
 	                }
 	            }
@@ -302,6 +365,7 @@ public class MainGame extends ApplicationAdapter {
             Gdx.app.log(TAG, "touchUp: " + x + ", " + y + "; pointer: " + pointer);            
         }               
         
+        //滑鼠移動時調用
         @Override
         public boolean mouseMoved(InputEvent event, float x, float y) {        	
         	if(checkClick == 1) {
@@ -333,8 +397,7 @@ public class MainGame extends ApplicationAdapter {
         public void clicked(InputEvent event, float x, float y) {
             // 获取响应这个点击事件的演员            
         	actor = (MyActor) event.getListenerActor();
-
-            Gdx.app.log(TAG, "被点击: " + x + ", " + y + "; Actor: " + actor.getClass().getSimpleName());
+            
             if(checkClick ==0) checkClick = 1;            
             else if(checkClick ==1) checkClick = 0;        
         }
